@@ -16,6 +16,7 @@ export function estimateRange(plan: Pick<EstimatePlan, "partMin" | "partMax" | "
 }
 type Rule = { id: string; title: string; severity: number; pattern: RegExp; possibilities: string[]; action: string };
 const rules: Rule[] = [
+  { id: "power", title: "심각한 출력·진동 이상", severity: 2, pattern: /심(한|각한|하게|각하게).*?(출력|떨림|진동)|갑자기.*(출력|가속).*(안|저하)|출력.*급격|출력\s*이상|가속.*불가/, possibilities: ["엔진·구동 계통 이상 등 원인 점검 필요"], action: "안전한 장소에 정차하고 운행을 중단하세요. 급격한 출력 저하나 심한 진동은 긴급출동 또는 견인 점검을 받으세요." },
   { id: "fire", title: "화재·누출 위험", severity: 3, pattern: /연기|불꽃|화재|타는\s*냄새|휘발유\s*냄새|연료\s*누출|기름\s*냄새/, possibilities: ["전기 계통 과열 또는 오일·연료 누출 가능성"], action: "안전하게 정차하고 시동을 끈 뒤 차량에서 떨어지세요. 화재·연료 누출이 의심되면 긴급 도움을 요청하고 운행을 재개하지 마세요." },
   { id: "heat", title: "엔진 과열 위험", severity: 3, pattern: /과열|수온|냉각수.*(누|새|끓)|온도.*(빨|높)/, possibilities: ["냉각수 부족·누출 또는 냉각 계통 이상 가능성"], action: "안전하게 정차하고 엔진을 끄세요. 뜨거운 냉각수 캡을 열지 말고 긴급출동 또는 견인을 요청하세요." },
   { id: "brake", title: "제동 계통 점검", severity: 2, pattern: /브레이크|제동|쇠.*소리|긁는\s*소리/, possibilities: ["브레이크 패드 마모·디스크 손상 또는 캘리퍼 이상 가능성"], action: "안전한 곳에 정차하고 운행을 중단한 뒤 견인 또는 전문가 점검을 받으세요." },
