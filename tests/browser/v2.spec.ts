@@ -1,0 +1,163 @@
+import { test, expect, type Page } from "@playwright/test";
+
+const oldData = () => ({ version: 2, car: { name: "기존 차량", year: 2020, km: 10000 }, items: [{ id: "oil", name: "엔진오일", icon: "🛢️", baseKm: 0, interval: 20000 }], logs: [{ id: "old-log", item: "일반 점검", itemId: null, date: "2026-01-01", km: 9000, cost: 50000, memo: "보존할 메모" }], theme: "light" });
+async function seed(page: Page, data: unknown = oldData()) {
+  await page.goto("/");
+  await page.evaluate(value => localStorage.setItem("carcare.v2", JSON.stringify(value)), data);
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "기존 차량" })).toBeVisible();
+}
+async function tab(page: Page, name: string) { await page.getByRole("navigation").getByRole("button", { name, exact: true }).click(); }
+async function save(page: Page) { await page.getByRole("dialog").getByRole("button", { name: "저장", exact: true }).click(); await expect(page.getByRole("dialog")).toBeHidden(); }
+
+test("기존 v2 무손실 로드, 견적 CRUD·새로고침·실제 지출 분리와 명시적 전환", async ({ page }) => {
+  const baseline = oldData();
+  await seed(page, baseline);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("carcare.v2")!))).toEqual(baseline);
+  await tab(page, "정비 견적");
+  await expect(page.getByText("참고용 추정치 · 실제 지출 아님", { exact: true })).toBeVisible();
+  const tire = page.getByRole("article").filter({ has: page.getByRole("heading", { name: "타이어", exact: true }) });
+  await tire.getByRole("button", { name: "예정 견적에 추가" }).click();
+  await page.getByLabel("수량 (표시 단위 기준)").fill("4");
+  await page.getByLabel("견적 메모 (선택)").fill("타이어 네 개 계획");
+  await page.getByRole("button", { name: "예정 견적 저장" }).click();
+  await expect(page.locator(".planned-total")).toHaveText("예상 합계 320,000원 ~ 980,000원");
+  let stored = await page.evaluate(() => JSON.parse(localStorage.getItem("carcare.v2")!));
+  expect(stored.car).toEqual(baseline.car);
+  expect(stored.items).toEqual(baseline.items);
+  expect(stored.logs).toEqual(baseline.logs);
+  await page.reload();
+  await tab(page, "정비 견적");
+  await expect(page.getByText("타이어 네 개 계획", { exact: false })).toBeVisible();
+  await page.locator(".plan-list").getByRole("button", { name: "수정", exact: true }).click();
+  await page.getByLabel("수량 (표시 단위 기준)").fill("2");
+  await page.getByRole("button", { name: "예정 견적 저장" }).click();
+  await expect(page.locator(".planned-total")).toHaveText("예상 합계 160,000원 ~ 490,000원");
+  await tab(page, "비용 분석");
+  await expect(page.locator(".summary-grid .card").first()).toContainText("50,000원");
+  await tab(page, "정비 견적");
+  await page.getByRole("button", { name: "실제 정비 기록", exact: true }).click();
+  await expect(page.getByLabel("비용 (원)", { exact: true })).toHaveValue("");
+  await page.getByRole("dialog").getByRole("button", { name: "취소", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "정비 예정 견적 (1건)" })).toBeVisible();
+  await page.getByRole("button", { name: "실제 정비 기록", exact: true }).click();
+  await page.getByLabel("비용 (원)", { exact: true }).fill("200000");
+  await save(page);
+  await expect(page.getByRole("heading", { name: "정비 예정 견적 (0건)" })).toBeVisible();
+  await tab(page, "비용 분석");
+  await expect(page.locator(".summary-grid .card").first()).toContainText("250,000원");
+  await tab(page, "정비 견적");
+  await tire.getByRole("button", { name: "예정 견적에 추가" }).click();
+  await page.getByRole("button", { name: "예정 견적 저장" }).click();
+  await page.locator(".plan-list").getByRole("button", { name: "삭제", exact: true }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "확인", exact: true }).click();
+  stored = await page.evaluate(() => JSON.parse(localStorage.getItem("carcare.v2")!));
+  expect(stored.estimates).toHaveLength(0);
+  expect(stored.logs).toHaveLength(2);
+});
+
+test("날짜 알림 설정, 교체 이력의 수정·삭제 후 거리·날짜 기준 복구", async ({ page }) => {
+  await page.clock.install({ time: new Date("2026-11-03T12:00:00+09:00") });
+  await seed(page);
+  await tab(page, "소모품");
+  await page.getByRole("button", { name: "엔진오일 수정", exact: true }).click();
+  await page.getByLabel("기본 마지막 교체 날짜 (선택)").fill("2025-10-03");
+  await page.getByLabel("기간 교체 주기 (개월, 0은 사용 안 함)").fill("12");
+  await save(page);
+  const card = page.getByRole("article");
+  await expect(card.getByText("2026-10-03", { exact: true })).toBeVisible();
+  await expect(card.getByText("31일 초과", { exact: true })).toBeVisible();
+  await tab(page, "대시보드");
+  await expect(page.locator(".reminder-list")).toContainText("날짜 기준 점검 필요");
+  await tab(page, "소모품");
+  await card.getByRole("button", { name: "교체 완료", exact: true }).click();
+  await page.getByLabel("정비 날짜", { exact: true }).fill("2026-11-03");
+  await page.getByLabel("비용 (원)", { exact: true }).fill("85000");
+  await save(page);
+  await expect(card.getByText("2027-11-03", { exact: true })).toBeVisible();
+  await page.reload();
+  await tab(page, "정비 이력");
+  await page.getByRole("button", { name: /엔진오일.*이력 수정/ }).click();
+  await page.getByLabel("정비 날짜", { exact: true }).fill("2026-09-03");
+  await save(page);
+  await tab(page, "소모품");
+  await expect(card.getByText("2027-09-03", { exact: true })).toBeVisible();
+  await tab(page, "정비 이력");
+  await page.getByRole("button", { name: /엔진오일.*이력 삭제/ }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "확인", exact: true }).click();
+  await tab(page, "소모품");
+  await expect(card.getByText("2026-10-03", { exact: true })).toBeVisible();
+  await expect(card.getByText("0 km", { exact: true })).toBeVisible();
+  await card.getByRole("button", { name: "엔진오일 수정", exact: true }).click();
+  await page.getByLabel("기본 마지막 교체 날짜 (선택)").fill("");
+  await save(page);
+  await expect(card.getByText("날짜 미설정", { exact: true }).first()).toBeVisible();
+  await tab(page, "대시보드");
+  await expect(page.locator(".reminders")).toContainText("날짜 미설정: 엔진오일");
+});
+
+test("자정 경과 시 날짜 알림 재계산 및 기간 0 비활성화", async ({ page }) => {
+  await page.clock.install({ time: new Date("2026-11-03T23:59:30+09:00") });
+  const data = oldData();
+  await seed(page, { ...data, items: [{ ...data.items[0], baseDate: "2025-11-03", intervalMonths: 12 }] });
+  await tab(page, "소모품");
+  await expect(page.getByText("오늘 교체 예정", { exact: true })).toBeVisible();
+  await page.clock.runFor(61000);
+  await expect(page.getByText("1일 초과", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "엔진오일 수정", exact: true }).click();
+  await page.getByLabel("기간 교체 주기 (개월, 0은 사용 안 함)").fill("0");
+  await save(page);
+  await expect(page.getByText("기간 기준 예정일", { exact: true })).toHaveCount(0);
+});
+
+test("규칙 기반 진단, 복합 위험 우선순위, 사진 미리보기와 비저장", async ({ page }) => {
+  await seed(page);
+  const before = await page.evaluate(() => localStorage.getItem("carcare.v2"));
+  await tab(page, "증상 진단");
+  await expect(page.getByText("실제 AI 진단이 아닙니다", { exact: true })).toBeVisible();
+  const symptom = page.getByLabel("어떤 문제가 발생했나요?");
+  await symptom.fill("   ");
+  await page.getByRole("button", { name: "규칙 기반 안내 보기" }).click();
+  await expect(page.locator(".feature-form [role=alert]")).toContainText("공백이 아닌");
+  await symptom.fill("브레이크 소리와 연기가 나고 핸들이 떨립니다");
+  await page.getByRole("button", { name: "규칙 기반 안내 보기" }).click();
+  const result = page.getByRole("region", { name: "규칙 기반 안내 결과" });
+  await expect(result).toContainText("즉시 안전 조치");
+  await expect(result.getByRole("heading", { level: 3 }).first()).toHaveText("화재·누출 위험");
+  await expect(result).toContainText("제동 계통 점검");
+  await symptom.fill("어딘가 불편해요");
+  await page.getByRole("button", { name: "규칙 기반 안내 보기" }).click();
+  await expect(result).toContainText("일치하는 규칙이 없습니다. 안전하다는 의미가 아니며");
+  const file = page.locator("input[type=file]");
+  await file.setInputFiles({ name: "bad.txt", mimeType: "text/plain", buffer: Buffer.from("text") });
+  await expect(page.locator(".feature-form [role=alert]")).toContainText("5MB 이하");
+  await file.setInputFiles({ name: "test.png", mimeType: "image/png", buffer: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9ZzWQAAAAASUVORK5CYII=", "base64") });
+  await expect(page.getByAltText("선택한 증상 관련 사진 미리보기")).toBeVisible();
+  await page.getByRole("button", { name: "사진 제거", exact: true }).click();
+  await expect(page.getByAltText("선택한 증상 관련 사진 미리보기")).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem("carcare.v2"))).toBe(before);
+  await page.getByRole("button", { name: "입력 초기화" }).click();
+  await expect(symptom).toHaveValue("");
+  await expect(result).toHaveCount(0);
+});
+
+test("견적 저장 실패 보존 및 모바일 신규 화면 가로 넘침 없음", async ({ page }, testInfo) => {
+  const errors: string[] = [];
+  page.on("pageerror", e => errors.push(e.message));
+  await seed(page);
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.getByRole("combobox", { name: "화면 테마" }).selectOption("dark");
+  await tab(page, "정비 견적");
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("estimates-mobile.png"), fullPage: true });
+  await page.getByRole("article").first().getByRole("button", { name: "예정 견적에 추가" }).click();
+  await page.evaluate(() => { Storage.prototype.setItem = () => { throw new DOMException("Quota exceeded", "QuotaExceededError"); }; });
+  await page.getByRole("button", { name: "예정 견적 저장" }).click();
+  await expect(page.getByRole("dialog").getByRole("alert")).toContainText("저장에 실패");
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("carcare.v2")!).estimates)).toBeUndefined();
+  await page.getByRole("dialog").getByRole("button", { name: "취소", exact: true }).click();
+  await tab(page, "증상 진단");
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("diagnosis-mobile.png"), fullPage: true });
+  expect(errors).toEqual([]);
+});

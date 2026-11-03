@@ -1,7 +1,8 @@
 export type Car = { name: string; year: number; km: number };
-export type Item = { id: string; name: string; icon: string; baseKm: number; interval: number };
+export type Item = { id: string; name: string; icon: string; baseKm: number; interval: number; baseDate?: string; intervalMonths?: number };
+export type EstimatePlan = { id: string; item: string; quantity: number; partMin: number; partMax: number; laborMin: number; laborMax: number; memo: string; createdDate: string };
 export type Maintenance = { id: string; item: string; itemId: string | null; date: string; km: number; cost: number; memo: string };
-export type Data = { version: 2; car: Car | null; items: Item[]; logs: Maintenance[]; theme: "auto" | "light" | "dark" };
+export type Data = { version: 2; car: Car | null; items: Item[]; logs: Maintenance[]; estimates?: EstimatePlan[]; theme: "auto" | "light" | "dark" };
 export const emptyData = (): Data => ({ version: 2, car: null, items: [], logs: [], theme: "auto" });
 export const defaults = [
   { name: "엔진오일", icon: "🛢️", interval: 10000 },
@@ -31,10 +32,30 @@ export function text(value: unknown, label: string, max: number): string {
 export function lastKm(item: Item, logs: Maintenance[]) {
   return logs.reduce((km, log) => log.itemId === item.id ? Math.max(km, log.km) : km, item.baseKm);
 }
-export function status(item: Item, logs: Maintenance[], km: number) {
+export function lastDate(item: Item, logs: Maintenance[]) {
+  return logs.reduce((date, log) => log.itemId === item.id && log.date > date ? log.date : date, item.baseDate ?? "");
+}
+export function addMonths(date: string, months: number) {
+  const [year, month, day] = date.split("-").map(Number);
+  const target = new Date(Date.UTC(year, month - 1 + months, 1));
+  const end = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate();
+  target.setUTCDate(Math.min(day, end));
+  return target.toISOString().slice(0, 10);
+}
+export const dayDifference = (end: string, start: string) => Math.round((Date.parse(end) - Date.parse(start)) / 86400000);
+export const stateRank = { ok: 0, soon: 1, over: 2 };
+export function status(item: Item, logs: Maintenance[], km: number, currentDate = today()) {
   const last = lastKm(item, logs), next = last + item.interval, remaining = next - km;
-  const code = remaining < 0 ? "over" : remaining <= 1000 ? "soon" : "ok";
-  return { last, next, remaining, code, label: { ok: "정상", soon: "임박", over: "초과" }[code], progress: Math.max(0, Math.min(100, (km - last) / item.interval * 100)) };
+  const kmCode = remaining < 0 ? "over" : remaining <= 1000 ? "soon" : "ok";
+  const date = lastDate(item, logs);
+  const dateDue = item.intervalMonths && date ? addMonths(date, item.intervalMonths) : null;
+  const daysLeft = dateDue ? dayDifference(dateDue, currentDate) : null;
+  const dateCode = daysLeft === null ? null : daysLeft < 0 ? "over" : daysLeft <= 30 ? "soon" : "ok";
+  const code: keyof typeof stateRank = dateCode && stateRank[dateCode] > stateRank[kmCode] ? dateCode : kmCode;
+  const kmProgress = Math.max(0, Math.min(100, (km - last) / item.interval * 100));
+  const dateProgress = dateDue ? Math.max(0, Math.min(100, dayDifference(currentDate, date) / Math.max(1, dayDifference(dateDue, date)) * 100)) : 0;
+  const reason = [kmCode !== "ok" ? "거리" : "", dateCode && dateCode !== "ok" ? "날짜" : ""].filter(Boolean).join("·");
+  return { last, next, remaining, code, kmCode, dateCode, dateDue, daysLeft, lastDate: date, reason, label: { ok: "정상", soon: "임박", over: "초과" }[code], progress: Math.max(kmProgress, dateProgress) };
 }
 export const sortedLogs = (logs: Maintenance[]) => [...logs].sort((a, b) => b.date.localeCompare(a.date) || b.km - a.km || b.id.localeCompare(a.id));
 export function saveLog(data: Data, log: Maintenance): Data {
@@ -74,7 +95,11 @@ export function parseData(raw: string): Data {
     const c = d.car as Record<string, unknown>;
     return { name: text(c?.name, "차량명", 40), year: integer(c?.year, "연식", 1980, 2100), km: integer(c?.km, "주행거리") };
   })();
-  const items: Item[] = d.items.map((value: Record<string, unknown>) => ({ id: text(value.id, "소모품 ID", 100), name: text(value.name, "소모품명", 30), icon: typeof value.icon === "string" ? value.icon.slice(0, 12) : "🔧", baseKm: integer(legacy ? value.lastKm : value.baseKm, "기본 교체 거리"), interval: integer(value.interval, "교체 주기", 1) }));
+  const items: Item[] = d.items.map((value: Record<string, unknown>) => {
+    const baseDate = legacy ? value.lastDate : value.baseDate;
+    if (baseDate !== undefined && (typeof baseDate !== "string" || (baseDate !== "" && !validDate(baseDate)))) throw new Error("마지막 교체 날짜가 올바르지 않습니다.");
+    return { id: text(value.id, "소모품 ID", 100), name: text(value.name, "소모품명", 30), icon: typeof value.icon === "string" ? value.icon.slice(0, 12) : "🔧", baseKm: integer(legacy ? value.lastKm : value.baseKm, "기본 교체 거리"), interval: integer(value.interval, "교체 주기", 1), ...(baseDate !== undefined ? { baseDate: baseDate as string } : {}), ...(value.intervalMonths !== undefined ? { intervalMonths: integer(value.intervalMonths, "기간 교체 주기", 0, 240) } : {}) };
+  });
   const logs: Maintenance[] = d.logs.map((value: Record<string, unknown>) => {
     const item = text(value.item, "정비 항목", 30);
     const itemId = legacy ? items.find(i => i.name === item)?.id ?? null : value.itemId;
@@ -86,7 +111,19 @@ export function parseData(raw: string): Data {
   if (new Set(items.map(i => i.id)).size !== items.length || new Set(logs.map(l => l.id)).size !== logs.length) throw new Error("중복된 데이터 ID가 있습니다.");
   if (!car && (items.length || logs.length)) throw new Error("차량 정보가 없습니다.");
   if (car && [...items.map(i => i.baseKm), ...logs.map(l => l.km)].some(km => km > car.km)) throw new Error("교체·정비 주행거리가 현재 차량 주행거리보다 큽니다.");
-  return { version: 2, car, items, logs, theme: d.theme === "dark" || d.theme === "light" ? d.theme : "auto" };
+  let estimates: EstimatePlan[] | undefined;
+  if (d.estimates !== undefined) {
+    if (!Array.isArray(d.estimates)) throw new Error("예정 견적 데이터가 올바르지 않습니다.");
+    estimates = d.estimates.map((value: Record<string, unknown>) => {
+      if (typeof value.createdDate !== "string" || !validDate(value.createdDate)) throw new Error("견적 생성 날짜가 올바르지 않습니다.");
+      if (typeof value.memo !== "string" || value.memo.length > 100) throw new Error("견적 메모가 올바르지 않습니다.");
+      const plan = { id: text(value.id, "견적 ID", 100), item: text(value.item, "견적 항목", 30), quantity: integer(value.quantity, "수량", 1, 20), partMin: integer(value.partMin, "부품비", 0, 1000000000), partMax: integer(value.partMax, "부품비", 0, 1000000000), laborMin: integer(value.laborMin, "공임", 0, 1000000000), laborMax: integer(value.laborMax, "공임", 0, 1000000000), memo: value.memo, createdDate: value.createdDate };
+      if (plan.partMin > plan.partMax || plan.laborMin > plan.laborMax) throw new Error("견적 범위가 올바르지 않습니다.");
+      return plan;
+    });
+    if (new Set(estimates.map(e => e.id)).size !== estimates.length || (!car && estimates.length)) throw new Error("예정 견적 데이터가 올바르지 않습니다.");
+  }
+  return { version: 2, car, items, logs, ...(estimates !== undefined ? { estimates } : {}), theme: d.theme === "dark" || d.theme === "light" ? d.theme : "auto" };
 }
 export function sampleData(now = new Date()): Data {
   const base = [36000, 20000, 21000, 15000, 10000];

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CarCare 카케어</title>
+<style>
+:root{--navy:#0b1f3a;--blue:#2563eb;--bg:#f2f6fb;--card:#fff;--tx:#0f1b2d;--mu:#64748b;--ln:#e2e8f0;--ok:#16a34a;--soon:#d97706;--over:#dc2626;--okb:#dcfce7;--soonb:#fef3c7;--overb:#fee2e2;--inp:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1424;--card:#12213a;--tx:#e8eef8;--mu:#94a3b8;--ln:#24365a;--okb:#14351f;--soonb:#3a2b0b;--overb:#3b1414;--inp:#0d1a2f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a1424;--card:#12213a;--tx:#e8eef8;--mu:#94a3b8;--ln:#24365a;--okb:#14351f;--soonb:#3a2b0b;--overb:#3b1414;--inp:#0d1a2f;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;line-height:1.5}
+header{background:var(--navy);color:#fff;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--navy);z-index:10}
+.hd{max-width:1080px;margin:auto;padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:20px;letter-spacing:-.5px}.logo b{color:#60a5fa}
+nav{display:flex;gap:4px;overflow-x:auto;margin-left:auto}
+nav button{background:none;border:0;color:#b6c6e0;padding:8px 14px;border-radius:999px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--blue);color:#fff}
+main{max-width:1080px;margin:auto;padding:16px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:16px;box-shadow:0 1px 3px rgba(11,31,58,.06)}
+.hero{background:linear-gradient(135deg,#0b1f3a,#1d4ed8);color:#fff;border:0;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.hero h2{margin:0;font-size:24px}.hero small{color:#bfd3f5}
+.stats{display:flex;gap:22px;flex-wrap:wrap}.stats div b{display:block;font-size:20px}
+h3{margin:22px 0 10px;font-size:17px}h3:first-child{margin-top:0}
+.sec{display:flex;justify-content:space-between;align-items:center;margin:22px 0 10px}.sec h3{margin:0}
+.btn{background:var(--blue);color:#fff;border:0;border-radius:10px;padding:9px 14px;font:inherit;font-size:14px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--blue);border:1px solid var(--ln)}
+.btn.sm{padding:5px 10px;font-size:12.5px}.btn.red{background:transparent;color:var(--over);border:1px solid var(--ln)}
+.hero .btn{background:rgba(255,255,255,.15)}
+.badge{font-size:12px;padding:3px 9px;border-radius:999px;font-weight:600;white-space:nowrap}
+.ok{background:var(--okb);color:var(--ok)}.soon{background:var(--soonb);color:var(--soon)}.over{background:var(--overb);color:var(--over)}
+.top{display:flex;align-items:center;gap:10px}.top .ic{font-size:26px}.top .nm{font-weight:700;flex:1}
+.bar{height:8px;background:var(--ln);border-radius:9px;overflow:hidden;margin:12px 0 8px}.bar i{display:block;height:100%;border-radius:9px}
+.bar .ok{background:var(--ok)}.bar .soon{background:var(--soon)}.bar .over{background:var(--over)}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;font-size:13px;color:var(--mu)}.kv b{color:var(--tx);font-weight:600}
+.acts{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.li{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--ln)}.li:last-child{border:0}
+.li .m{flex:1;min-width:0}.li .m b{display:block}.li .m span{font-size:13px;color:var(--mu);overflow-wrap:anywhere}
+.cost{font-weight:700;white-space:nowrap}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+.sum .card b{font-size:20px;display:block}.sum .card span{font-size:13px;color:var(--mu)}
+.cols{display:flex;align-items:flex-end;gap:8px;height:190px;overflow-x:auto;padding-top:10px}
+.col{flex:1;min-width:44px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:11px;color:var(--mu)}
+.col i{display:block;width:70%;background:linear-gradient(var(--blue),#60a5fa);border-radius:6px 6px 0 0;min-height:2px}
+.col em{font-style:normal;color:var(--tx);font-weight:600;margin-bottom:3px}
+.hb{margin:10px 0}.hb div{display:flex;justify-content:space-between;font-size:14px}.hb .bar{margin:4px 0}.hb .bar i{background:var(--blue)}
+.empty{text-align:center;color:var(--mu);padding:26px 10px}
+.note{font-size:12.5px;color:var(--mu);margin:26px 0 8px;padding:12px;border-radius:12px;background:var(--card);border:1px dashed var(--ln)}
+#ov{position:fixed;inset:0;background:rgba(5,12,25,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
+#ov.on{display:flex}
+#M{background:var(--card);border-radius:18px;padding:20px;width:100%;max-width:420px;max-height:92vh;overflow:auto}
+#M h2{margin:0 0 12px;font-size:18px}
+label{display:block;font-size:13px;color:var(--mu);margin-top:10px}
+input,select{width:100%;padding:10px;margin-top:4px;border:1px solid var(--ln);border-radius:10px;background:var(--inp);color:var(--tx);font:inherit}
+label.ck{display:flex;gap:8px;align-items:center;color:var(--tx)}label.ck input{width:auto;margin:0}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+.panel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.field-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.muted{color:var(--mu);font-size:12.5px}
+.price{font-size:19px;font-weight:800}
+.price-range{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.price-range span{background:var(--bg);border:1px solid var(--ln);padding:7px 9px;border-radius:9px;font-size:12px}
+.tag{display:inline-block;background:var(--okb);color:var(--ok);border-radius:999px;padding:3px 8px;font-size:11px;font-weight:700}
+.warning-box{border:1px solid var(--soon);background:var(--soonb);border-radius:12px;padding:12px;font-size:13px}
+.danger-box{border:1px solid var(--over);background:var(--overb);border-radius:12px;padding:12px;font-size:13px}
+.upload{display:block;border:2px dashed var(--ln);border-radius:14px;padding:22px;text-align:center;cursor:pointer;background:var(--bg)}
+.upload input{display:none}
+.preview{max-width:100%;max-height:230px;object-fit:contain;border-radius:12px;margin-top:10px}
+.result{border:1px solid var(--ln);border-radius:14px;padding:14px;margin-top:12px}
+
+</style>
+</head>
+<body>
+<header><div class="hd"><div class="logo">🚗 Car<b>Care</b></div>
+<nav id="nav"><button data-t="dash">🏠 대시보드</button><button data-t="items">🔧 소모품</button><button data-t="logs">📋 정비 이력</button><button data-t="cost">📊 비용 분석</button><button data-t="estimate">💰 정비 견적</button><button data-t="diagnosis">🤖 증상 진단</button></nav></div></header>
+<main id="app"></main>
+<div id="ov"><form id="M"><h2 id="mt"></h2><div id="mb"></div></form></div>
+<script>
+const KEY='carcare.v1',$=s=>document.querySelector(s);
+const E=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const N=n=>Number(n||0).toLocaleString('ko-KR');
+const DEF=[['엔진오일','🛢️',10000],['타이어','🛞',50000],['에어컨 필터','🌬️',15000],['브레이크 패드','🛑',40000],['브레이크액','💧',40000]];
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const ymd=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const today=()=>ymd(new Date());
+let S=load(),tab='dash';
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.items)return s}catch(e){}return{car:null,items:[],logs:[]}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function ago(m,d){const t=new Date();t.setDate(1);t.setMonth(t.getMonth()-m);t.setDate(d);return ymd(t)}
+function sample(){
+ S={car:{name:'현대 쏘나타 DN8',year:2020,km:52300},
+ items:[{id:uid(),name:'엔진오일',icon:'🛢️',lastKm:46000,interval:10000},{id:uid(),name:'타이어',icon:'🛞',lastKm:20000,interval:50000},{id:uid(),name:'에어컨 필터',icon:'🌬️',lastKm:36000,interval:15000},{id:uid(),name:'브레이크 패드',icon:'🛑',lastKm:15000,interval:40000},{id:uid(),name:'브레이크액',icon:'💧',lastKm:30000,interval:40000}],
+ logs:[{id:uid(),item:'엔진오일',date:ago(1,12),km:46000,cost:85000,memo:'합성유 교환'},{id:uid(),name:'',item:'에어컨 필터',date:ago(5,3),km:36000,cost:32000,memo:''},{id:uid(),item:'브레이크액',date:ago(8,20),km:30000,cost:45000,memo:''},{id:uid(),item:'엔진오일',date:ago(2,5),km:41000,cost:78000,memo:''},{id:uid(),item:'타이어',date:ago(0,2),km:52000,cost:640000,memo:'4본 교체'},{id:uid(),item:'브레이크 패드',date:ago(3,18),km:15000,cost:180000,memo:'전륜'},{id:uid(),item:'워셔액 보충',date:ago(4,9),km:44000,cost:5000,memo:''}]};
+ save();render()}
+const st=i=>{
+ const km=S.car.km,next=i.lastKm+i.interval,rem=next-km;
+ const pct=Math.max(0,Math.min(100,(km-i.lastKm)/Math.max(1,i.interval)*100));
+ let dateDue=null,daysLeft=null,datePct=0,dateState='ok';
+ if(i.lastDate && Number(i.intervalMonths)>0){
+  const d=new Date(i.lastDate+'T00:00:00');d.setMonth(d.getMonth()+Number(i.intervalMonths));
+  dateDue=ymd(d);daysLeft=Math.ceil((new Date(dateDue+'T00:00:00')-new Date(today()+'T00:00:00'))/86400000);
+  datePct=Math.max(0,Math.min(100,(Number(i.intervalMonths)*30.4375-daysLeft)/(Number(i.intervalMonths)*30.4375)*100));
+  dateState=daysLeft<0?'over':daysLeft<=Math.max(30,Number(i.intervalMonths)*30.4375*.15)?'soon':'ok';
+ }
+ const kmState=rem<0?'over':rem<=i.interval*.15?'soon':'ok';
+ const rank={ok:0,soon:1,over:2};
+ const c=rank[kmState]>=rank[dateState]?kmState:dateState;
+ const byDate=dateDue && rank[dateState]>=rank[kmState];
+ return{next,rem,pct:Math.max(pct,datePct),c,dateDue,daysLeft,byDate,
+  label:{ok:'교체 예정',soon:'교체 임박',over:'교체 초과'}[c]};
+};
+const total=()=>S.logs.reduce((a,l)=>a+l.cost,0);
+const sortedLogs=()=>[...S.logs].sort((a,b)=>b.date.localeCompare(a.date)||b.km-a.km);
+function badge(s){return`<span class="badge ${s.c}">${s.label}</span>`}
+function itemCard(i,full){const s=st(i);return`<div class="card"><div class="top"><span class="ic">${i.icon}</span><span class="nm">${E(i.name)}</span>${badge(s)}</div>
+<div class="bar"><i class="${s.c}" style="width:${s.pct}%"></i></div>
+<div class="kv"><span>다음 교체 예정</span><b>${N(s.next)} km</b><span>${s.rem<0?'초과 거리':'남은 거리'}</span><b>${N(Math.abs(s.rem))} km</b>${full?`<span>마지막 교체</span><b>${N(i.lastKm)} km${i.lastDate?' · '+E(i.lastDate):''}</b><span>교체 주기</span><b>${N(i.interval)} km${Number(i.intervalMonths)>0?' · '+N(i.intervalMonths)+'개월':''}</b>${s.dateDue?`<span>기간 기준 예정일</span><b>${E(s.dateDue)} (${s.daysLeft<0?N(-s.daysLeft)+'일 초과':N(s.daysLeft)+'일 남음'})</b>`:''}`:''}</div>
+${full?`<div class="acts"><button class="btn sm" onclick="doneItem('${i.id}')">✅ 교체 완료</button><button class="btn sm ghost" onclick="editItem('${i.id}')">✏️ 수정</button><button class="btn sm red" onclick="delItem('${i.id}')">🗑 삭제</button></div>`:''}</div>`}
+function logRow(l,acts){return`<div class="li"><div class="m"><b>${E(l.item)}</b><span>${l.date} · ${N(l.km)} km${l.memo?' · '+E(l.memo):''}</span></div><div class="cost">${N(l.cost)}원</div>${acts?`<button class="btn sm ghost" onclick="editLog('${l.id}')">수정</button><button class="btn sm red" onclick="delLog('${l.id}')">삭제</button>`:''}</div>`}
+const NOTE='<div class="note">⚠️ 표시된 교체 주기는 예시 값이며 제조사 공식 주기가 아닙니다. 날짜 기준 알림은 마지막 교체 날짜와 개월 수를 직접 입력한 항목에만 적용됩니다. 실제 정비 시기는 차량 사용 설명서를 확인하고 정비 전문가와 상담해 결정하세요.</div>';
+function render(){
+ document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+ const a=$('#app');
+ if(!S.car){a.innerHTML=`<div class="card empty"><div style="font-size:48px">🚗</div><h2>CarCare에 오신 것을 환영합니다</h2><p>차량을 등록하면 소모품 교체 시기와 정비 비용을 한눈에 관리할 수 있어요.</p><div class="tools" style="justify-content:center"><button class="btn" onclick="editCar()">차량 등록하기</button><button class="btn ghost" onclick="sample()">예시 데이터로 시작</button></div></div>${NOTE}`;return}
+ a.innerHTML=({dash,items,logs,cost,estimate,diagnosis}[tab]||dash)()+NOTE+`<div class="tools"><button class="btn ghost sm" onclick="sample()">예시 데이터 불러오기</button><button class="btn red sm" onclick="resetAll()">전체 초기화</button></div>`}
+function heroCard(){const c=S.car;return`<div class="card hero"><div><small>${c.year}년식</small><h2>${E(c.name)}</h2></div><div class="stats"><div><small>현재 주행거리</small><b>${N(c.km)} km</b></div><div><small>누적 정비 비용</small><b>${N(total())}원</b></div></div><button class="btn" onclick="editCar()">✏️ 차량 정보·주행거리 수정</button></div>`}
+function dash(){
+ const its=S.items.map(i=>({i,s:st(i)})).sort((a,b)=>a.s.rem-b.s.rem),cnt=c=>its.filter(x=>x.s.c===c).length,nx=its.slice(0,3);
+ return heroCard()+`<div class="sum" style="margin-top:14px"><div class="card"><b style="color:var(--ok)">${cnt('ok')}</b><span>교체 예정</span></div><div class="card"><b style="color:var(--soon)">${cnt('soon')}</b><span>교체 임박</span></div><div class="card"><b style="color:var(--over)">${cnt('over')}</b><span>교체 초과</span></div></div>
+ <h3>⏭ 다음 교체 예정 항목</h3>${nx.length?`<div class="grid">${nx.map(x=>itemCard(x.i)).join('')}</div>`:'<div class="card empty">등록된 소모품이 없습니다.</div>'}
+ <h3>🔧 소모품별 관리 상태</h3><div class="card">${its.map(x=>`<div class="li"><span style="font-size:22px">${x.i.icon}</span><div class="m"><b>${E(x.i.name)}</b><span>다음 ${N(x.s.next)} km · ${x.s.rem<0?N(-x.s.rem)+' km 초과':N(x.s.rem)+' km 남음'}</span></div>${badge(x.s)}</div>`).join('')||'<div class="empty">없음</div>'}</div>
+ <h3>📋 최근 정비 이력</h3><div class="card">${sortedLogs().slice(0,5).map(l=>logRow(l)).join('')||'<div class="empty">정비 이력이 없습니다.</div>'}</div>`}
+function items(){return`<div class="sec"><h3>소모품 관리</h3><button class="btn" onclick="editItem()">＋ 소모품 추가</button></div><div class="grid">${S.items.map(i=>itemCard(i,1)).join('')||'<div class="card empty">소모품을 추가해 주세요.</div>'}</div>`}
+function logs(){const l=sortedLogs();return`<div class="sec"><h3>정비 이력 (최신순)</h3><button class="btn" onclick="editLog()">＋ 이력 등록</button></div><div class="card">${l.map(x=>logRow(x,1)).join('')||'<div class="empty">정비 이력이 없습니다.</div>'}</div>`}
+function cost(){
+ const mo={},ct={};S.logs.forEach(l=>{const m=l.date.slice(0,7);mo[m]=(mo[m]||0)+l.cost;ct[l.item]=(ct[l.item]||0)+l.cost});
+ const ms=Object.keys(mo).sort().slice(-12),mx=Math.max(1,...ms.map(m=>mo[m])),cs=Object.entries(ct).sort((a,b)=>b[1]-a[1]),T=total(),cm=ymd(new Date()).slice(0,7);
+ return`<h3>비용 분석</h3><div class="sum"><div class="card"><b>${N(T)}원</b><span>누적 정비 비용</span></div><div class="card"><b>${N(mo[cm]||0)}원</b><span>이번 달 지출</span></div><div class="card"><b>${S.logs.length}건</b><span>정비 횟수</span></div></div>
+ <div class="card"><b>월별 정비 비용</b>${ms.length?`<div class="cols">${ms.map(m=>`<div class="col"><em>${mo[m]>=10000?Math.round(mo[m]/1000)/10+'만':N(mo[m])}</em><i style="height:${mo[m]/mx*140}px"></i>${m.slice(2).replace('-','.')}</div>`).join('')}</div>`:'<div class="empty">데이터 없음</div>'}</div>
+ <h3>항목별 지출</h3><div class="card">${cs.map(([k,v])=>{const pct=T>0?Math.round(v/T*100):0;return `<div class="hb"><div><span>${E(k)}</span><b>${N(v)}원 (${pct}%)</b></div><div class="bar"><i style="width:${pct}%"></i></div></div>`}).join('')||'<div class="empty">데이터 없음</div>'}</div>`}
+
+/* 정비 견적: 외부 실시간 가격 연동 전의 참고용 국내 일반 정비비 범위 */
+const ESTIMATES=[
+ {name:'엔진오일',part:[35000,90000],labor:[15000,35000],unit:'1회',memo:'오일 규격·용량·필터 종류에 따라 차이'},
+ {name:'타이어',part:[70000,220000],labor:[10000,25000],unit:'1개 기준',memo:'휠 크기·브랜드·런플랫 여부에 따라 차이'},
+ {name:'브레이크 패드',part:[40000,120000],labor:[30000,60000],unit:'축당 기준',memo:'전륜/후륜 및 차종에 따라 차이'},
+ {name:'브레이크액',part:[15000,35000],labor:[30000,60000],unit:'1회',memo:'액 규격 및 교환 방식에 따라 차이'},
+ {name:'에어컨 필터',part:[10000,35000],labor:[0,15000],unit:'1개',memo:'자가 교체 가능 차종은 공임이 없을 수 있음'},
+ {name:'배터리',part:[90000,220000],labor:[10000,30000],unit:'1개',memo:'AGM/EFB/일반 배터리 및 용량에 따라 차이'},
+ {name:'미션오일',part:[70000,180000],labor:[50000,120000],unit:'1회',memo:'순환식/드레인 방식과 오일량에 따라 차이'},
+ {name:'점화플러그',part:[30000,120000],labor:[30000,100000],unit:'세트 기준',memo:'실린더 수와 플러그 재질에 따라 차이'}
+];
+function won(v){return N(v)+'원'}
+function estimate(){
+ const c=S.car;
+ return `<div class="sec"><h3>💰 내 차 정비 예상 견적</h3><button class="btn ghost sm" onclick="editCar()">차량 정보 수정</button></div>
+ <div class="card"><b>${E(c.name)} · ${c.year}년식</b><p class="muted">현재 주행거리 ${N(c.km)} km · 차종 세부 트림/엔진/휠 규격이 입력되지 않아 일반적인 참고 범위로 계산합니다.</p></div>
+ <div class="warning-box" style="margin:12px 0">가격 안내: 현재 표시 금액은 참고용 추정 범위이며 실시간 업체 조회값이 아닙니다. 공임나라는 차종·작업 항목별 표준 공임을 공식 페이지에서 확인해야 합니다. 공식 가격표를 새 창에서 확인한 뒤 실제 견적과 비교해 주세요.<br><br><a href="https://www.gongim.com/" target="_blank" rel="noopener">공임나라 공식 홈페이지에서 공임 확인 ↗</a></div>
+ <div class="card" style="margin-bottom:14px"><b>업체 가격 데이터 연결 상태</b><p class="muted">공임나라의 공개된 공식 API 제공 여부와 자동 수집 허용 범위를 확인하지 못한 상태입니다. 무단 크롤링이나 브라우저에 API 키를 넣는 방식은 적용하지 않았습니다. 공식 제휴/API 또는 허가된 데이터 피드가 확보되면 서버에서 가격을 받아 이 견적표를 자동 갱신하도록 연결할 수 있습니다.</p><span class="tag">외부 가격 API 연결 대기</span></div>
+ <div class="grid">${ESTIMATES.map(x=>{let lo=x.part[0]+x.labor[0],hi=x.part[1]+x.labor[1],mid=Math.round((lo+hi)/2/1000)*1000;return `<div class="card"><div class="top"><b class="nm">${x.name}</b><span class="tag">${x.unit}</span></div><div class="price">${won(lo)} ~ ${won(hi)}</div><div class="muted">중간 예상가 약 ${won(mid)} · 참고 추정치</div><div class="kv" style="margin-top:12px"><span>부품비</span><b>${won(x.part[0])} ~ ${won(x.part[1])}</b><span>공임</span><b>${won(x.labor[0])} ~ ${won(x.labor[1])}</b></div><p class="muted">${x.memo}</p><button class="btn sm ghost" onclick="addEstimateLog('${x.name}',${mid})">이 금액으로 정비 예정 등록</button></div>`}).join('')}</div>
+ <div class="card" style="margin-top:14px"><b>견적 정확도를 높이려면</b><p class="muted">차량 세부 모델, 엔진/연료, 배기량, 타이어 규격을 추가로 등록하는 기능을 추후 연결할 수 있습니다. 가격 데이터는 업체의 공식 API·제휴 데이터 또는 이용 허가를 받은 자료로 연동해야 합니다.</p></div>`;
+}
+function addEstimateLog(item,cost){editLog(null,{item,km:S.car.km,cost,memo:'정비 예상 견적에서 등록'})}
+function diagnosis(){
+ return `<h3>🤖 차량 증상 진단 도우미</h3>
+ <div class="card"><p>차량에서 발생한 증상을 적거나 관련 부품 사진을 첨부해 주세요. 현재 버전은 입력된 키워드 기반의 <b>안전 안내 데모</b>이며, 실제 AI 이미지 판독이나 정비 진단 서버와 연결된 상태는 아닙니다.</p>
+ <label>어떤 문제가 발생했나요?</label><textarea id="symptom" rows="4" placeholder="예: 브레이크를 밟을 때 쇠 긁는 소리가 나요. 핸들도 떨립니다."></textarea>
+ <label>증상 발생 상황</label><select id="when"><option>항상 발생</option><option>시동 직후</option><option>주행 중</option><option>브레이크 작동 시</option><option>가속할 때</option><option>비가 오거나 추울 때</option><option>간헐적으로 발생</option></select>
+ <label>관련 사진 첨부 (선택)</label><label class="upload">📷 사진 선택 또는 촬영<input id="diagPhoto" type="file" accept="image/*" capture="environment" onchange="previewDiagnosisPhoto(event)"><span class="muted">엔진룸, 계기판 경고등, 타이어 등 사진</span><img id="photoPreview" class="preview" style="display:none"></label>
+ <div class="row"><button class="btn" type="button" onclick="runDemoDiagnosis()">증상 분석하기</button></div><div id="diagResult"></div></div>
+ <div class="warning-box" style="margin-top:12px">브레이크·조향·타이어·연료 누출·연기·화재·과열·심한 진동 등 주행 안전과 관련된 증상은 분석 결과를 기다리지 말고 안전한 곳에 정차하세요. 위험이 의심되면 운행을 중단하고 긴급출동 또는 견인을 이용하세요.</div>`;
+}
+function previewDiagnosisPhoto(ev){const f=ev.target.files&&ev.target.files[0],img=$('#photoPreview');if(!f)return;if(!f.type.startsWith('image/')){alert('이미지 파일을 선택해 주세요.');return}const r=new FileReader();r.onload=()=>{img.src=r.result;img.style.display='block'};r.readAsDataURL(f)}
+function runDemoDiagnosis(){
+ const t=($('#symptom').value||'').trim(),w=$('#when').value;if(!t){alert('증상을 먼저 입력해 주세요.');return}
+ const s=t.toLowerCase();let level='일반 점검',cls='warning-box',items=['증상만으로 원인을 확정할 수 없습니다.','정비소에서 재현 점검 및 진단기 확인을 권장합니다.'],urgent=false;
+ const add=(a)=>{items=a};
+ if(/브레이크|제동|쇠.*소리|긁는 소리|브레이크.*떨림/.test(s)){level='안전 우선 · 운행 중단 권장';cls='danger-box';urgent=true;add(['브레이크 패드 마모 또는 디스크 손상 가능성','캘리퍼 고착 등 제동 계통 이상 가능성','안전한 곳에 정차하고 운행을 중단한 뒤 견인 또는 즉시 점검을 권장합니다.'])}
+ else if(/타이어|펑크|공기압|바람 빠/.test(s)){level='빠른 점검 필요';cls='danger-box';urgent=true;add(['타이어 펑크·손상 또는 공기압 저하 가능성','타이어 옆면 손상·혹·심한 공기압 저하가 있으면 주행하지 마세요.','안전한 장소에서 상태를 확인하고 긴급출동 또는 타이어 전문점 점검을 받으세요.'])}
+ else if(/연기|불꽃|불|타는 냄새|휘발유 냄새|연료 누출/.test(s)){level='즉시 안전 조치';cls='danger-box';urgent=true;add(['전기 계통 과열, 누유·누출 등 여러 원인이 가능','즉시 안전한 곳에 정차하고 시동을 끄세요. 화재·연료 누출이 의심되면 차량에서 떨어져 119 등 긴급 도움을 요청하세요.'])}
+ else if(/엔진 경고등|체크 엔진|출력 저하|시동.*안/.test(s)){level='빠른 점검 권장';cls='warning-box';add(['센서·점화·연료·배출가스 계통 등 다양한 원인 가능','경고등이 깜빡이거나 심한 떨림·출력 저하가 동반되면 운행을 중단하세요.','고장 코드 스캔과 정비소 점검이 필요합니다.'])}
+ else if(/에어컨|냉방|히터/.test(s)){add(['에어컨 필터 오염, 냉매 부족, 컴프레서·송풍 계통 문제 가능','바람 세기와 냉·난방 상태를 확인하고 정비소에서 점검받으세요.'])}
+ $('#diagResult').innerHTML=`<div class="result"><div class="${cls}"><b>판단: ${level}</b></div><p><b>입력 내용</b>: ${E(t)}</p><p class="muted">발생 상황: ${E(w)} · 사진은 현재 데모에서 실제 판독되지 않습니다.</p><b>확인할 가능성 및 조치</b><ul>${items.map(x=>'<li>'+E(x)+'</li>').join('')}</ul><p class="muted">이 결과는 키워드 기반 참고 안내이며 AI의 실제 진단, 고장 확정 또는 운행 안전 보증이 아닙니다. 증상이 심하거나 안전과 관련되면 전문가 점검을 우선하세요.</p></div>`;
+}
+
+/* modal */
+function modal(t,body,ok){$('#mt').textContent=t;$('#mb').innerHTML=body+'<div class="row"><button type="button" class="btn ghost" onclick="closeM()">취소</button><button class="btn">저장</button></div>';
+ $('#M').onsubmit=e=>{e.preventDefault();const f=Object.fromEntries(new FormData($('#M')));if(ok(f)!==false)closeM()};$('#ov').classList.add('on')}
+function closeM(){$('#ov').classList.remove('on')}
+$('#ov').addEventListener('mousedown',e=>{if(e.target.id==='ov')closeM()});
+const F=(l,n,v,t='text',x='')=>`<label>${l}<input name="${n}" type="${t}" value="${E(v)}" required ${x}></label>`;
+function editCar(){const c=S.car||{name:'',year:new Date().getFullYear(),km:0};
+ modal(S.car?'차량 정보 수정':'차량 등록',F('차량명','name',c.name,'text','maxlength="40" placeholder="예: 현대 쏘나타"')+F('연식','year',c.year,'number','min="1980" max="2100"')+F('현재 주행거리 (km)','km',c.km,'number','min="0"'),f=>{
+  const first=!S.car;S.car={name:f.name.trim(),year:+f.year,km:+f.km};
+  if(first&&!S.items.length)S.items=DEF.map(d=>({id:uid(),name:d[0],icon:d[1],lastKm:S.car.km,interval:d[2],lastDate:'',intervalMonths:0}));
+  save();render()})}
+function editItem(id){const i=S.items.find(x=>x.id===id)||{name:'',lastKm:S.car.km,interval:10000,icon:'🔧',lastDate:'',intervalMonths:0};
+ modal(id?'소모품 수정':'소모품 추가',F('소모품 이름','name',i.name,'text','maxlength="30"')+
+  F('마지막 교체 주행거리 (km)','lastKm',i.lastKm,'number','min="0"')+
+  F('교체 주기 (km, 예시 값 · 직접 수정)','interval',i.interval,'number','min="1"')+
+  `<label>마지막 교체 날짜 (기간 기준을 사용할 때 입력)<input name="lastDate" type="date" value="${E(i.lastDate||'')}"></label>`+
+  `<label>기간 교체 주기 (개월, 0이면 사용 안 함)<input name="intervalMonths" type="number" min="0" max="240" value="${E(i.intervalMonths||0)}"></label>`+
+  '<p class="muted">날짜와 개월 수를 모두 입력하면 주행거리 기준과 기간 기준 중 먼저 도래하는 시점을 교체 알림에 반영합니다. 과거 데이터에는 실제 교체 날짜를 확인한 뒤 입력하세요.</p>',f=>{
+  const o={name:f.name.trim(),lastKm:+f.lastKm,interval:+f.interval,lastDate:f.lastDate||'',intervalMonths:Math.max(0,+f.intervalMonths||0)};
+  if(id)Object.assign(i,o);else S.items.push({id:uid(),icon:'🔧',...o});save();render()})}
+function delItem(id){if(confirm('이 소모품을 삭제할까요?')){S.items=S.items.filter(x=>x.id!==id);save();render()}}
+function doneItem(id){const i=S.items.find(x=>x.id===id);editLog(null,{item:i.name,km:S.car.km})}
+function editLog(id,pre){const l=S.logs.find(x=>x.id===id)||{item:'',date:today(),km:S.car.km,cost:0,memo:'',...pre};
+ modal(id?'정비 이력 수정':'정비 이력 등록',`<label>정비 항목<input name="item" list="dl" value="${E(l.item)}" required maxlength="30"><datalist id="dl">${S.items.map(i=>`<option value="${E(i.name)}">`).join('')}</datalist></label>`+F('날짜','date',l.date,'date')+F('주행거리 (km)','km',l.km,'number','min="0"')+F('비용 (원)','cost',l.cost,'number','min="0"')+`<label>메모<input name="memo" value="${E(l.memo)}" maxlength="100"></label><label class="ck"><input type="checkbox" name="upd" ${id?'':'checked'}> 같은 이름의 소모품 교체 기준(마지막 교체 거리) 갱신</label>`,f=>{
+  const o={item:f.item.trim(),date:f.date,km:+f.km,cost:+f.cost,memo:f.memo.trim()};
+  if(id)Object.assign(l,o);else S.logs.push({id:uid(),...o});
+  if(f.upd){const it=S.items.find(x=>x.name===o.item);if(it)it.lastKm=o.km}
+  if(!id && o.km>S.car.km)S.car.km=o.km;save();render()})}
+function delLog(id){
+ const l=S.logs.find(x=>x.id===id);if(!l)return;
+ const msg='이 정비 이력을 삭제할까요?\\n\\n주의: 이 기록으로 갱신된 소모품의 마지막 교체 기준은 자동으로 되돌리지 않습니다. 삭제 후 교체 기준이 맞지 않으면 [소모품] 메뉴에서 직접 수정해 주세요.';
+ if(confirm(msg)){S.logs=S.logs.filter(x=>x.id!==id);save();render()}
+}
+function resetAll(){if(confirm('모든 데이터를 삭제하고 초기화할까요?')){S={car:null,items:[],logs:[]};save();tab='dash';render()}}
+$('#nav').addEventListener('click',e=>{const t=e.target.dataset.t;if(t){tab=t;render();scrollTo(0,0)}});
+render();
+</script>
+</body>
+</html>
